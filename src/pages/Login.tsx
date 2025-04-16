@@ -35,7 +35,7 @@ const Login = () => {
       description: `Nice to see you, ${formData.firstName}!`,
     });
     
-    // Navigate to home page after successful login
+    // Use replace instead of push to avoid back button issues
     navigate('/', { replace: true });
   };
 
