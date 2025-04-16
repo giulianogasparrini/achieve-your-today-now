@@ -2,6 +2,7 @@
 import React from 'react';
 import ProfileAvatar from './ProfileAvatar';
 import ProfileForm from './ProfileForm';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ProfileContentProps {
   firstName: string;
@@ -21,18 +22,20 @@ const ProfileContent = ({
   onLogout,
 }: ProfileContentProps) => {
   return (
-    <div className="space-y-6">
-      <ProfileAvatar 
-        avatarUrl={avatarUrl} 
-        onAvatarChange={onAvatarChange} 
-      />
-      <ProfileForm
-        firstName={firstName}
-        onFirstNameChange={onFirstNameChange}
-        onSubmit={onSubmit}
-        onLogout={onLogout}
-      />
-    </div>
+    <ScrollArea className="h-full pr-2">
+      <div className="space-y-6">
+        <ProfileAvatar 
+          avatarUrl={avatarUrl} 
+          onAvatarChange={onAvatarChange} 
+        />
+        <ProfileForm
+          firstName={firstName}
+          onFirstNameChange={onFirstNameChange}
+          onSubmit={onSubmit}
+          onLogout={onLogout}
+        />
+      </div>
+    </ScrollArea>
   );
 };
 

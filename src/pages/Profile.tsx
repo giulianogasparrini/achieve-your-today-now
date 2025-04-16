@@ -7,12 +7,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import ProfileContent from '@/components/profile/ProfileContent';
 
 const Profile = () => {
@@ -21,7 +21,7 @@ const Profile = () => {
   const isMobile = useIsMobile();
   const [firstName, setFirstName] = React.useState(localStorage.getItem('userFirstName') || '');
   const [avatarUrl, setAvatarUrl] = React.useState(localStorage.getItem('userAvatar') || '');
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,18 +65,18 @@ const Profile = () => {
       {isMobile ? (
         <div className="container max-w-2xl mx-auto p-4">
           <h1 className="text-2xl font-bold mb-4">Profile Settings</h1>
-          <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-            <DrawerTrigger asChild>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
               <Button variant="outline" className="w-full">
                 <ChevronUp className="mr-2 h-4 w-4" />
                 Edit Profile
               </Button>
-            </DrawerTrigger>
-            <DrawerContent>
-              <DrawerHeader>
-                <DrawerTitle>Edit Profile</DrawerTitle>
-              </DrawerHeader>
-              <div className="px-4 pb-4">
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[85%] rounded-t-xl">
+              <SheetHeader>
+                <SheetTitle>Edit Profile</SheetTitle>
+              </SheetHeader>
+              <div className="px-2 py-4 overflow-y-auto">
                 <ProfileContent
                   firstName={firstName}
                   avatarUrl={avatarUrl}
@@ -86,8 +86,8 @@ const Profile = () => {
                   onLogout={handleLogout}
                 />
               </div>
-            </DrawerContent>
-          </Drawer>
+            </SheetContent>
+          </Sheet>
         </div>
       ) : (
         <div className="container max-w-2xl mx-auto p-4 space-y-8">
