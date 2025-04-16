@@ -1,270 +1,155 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import MainLayout from '@/components/layout/MainLayout';
-import { Button } from '@/components/ui/button';
-import JournalPrompt from '@/components/journal/JournalPrompt';
-import { PencilLine, Calendar, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { format, addDays, subDays } from 'date-fns';
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
-// Journal Entry interface
+type Mood = 'great' | 'good' | 'okay' | 'bad';
+
 interface JournalEntry {
   id: string;
   date: string;
   content: string;
-  prompt: string;
-  mood: 'great' | 'good' | 'okay' | 'bad';
+  mood: Mood;
 }
 
 const JournalPage = () => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [entries, setEntries] = useState<JournalEntry[]>([
-    {
-      id: '1',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      content: "Today was quite productive. I managed to complete my workout routine in the morning and finish two major tasks at work. I'm feeling good about my progress on the half-marathon training, but I need to be more consistent with my Spanish learning.",
-      prompt: "What are three things that went well today, and what's one thing you'd like to improve tomorrow?",
-      mood: 'good'
-    },
-    {
-      id: '2',
-      date: format(subDays(new Date(), 1), 'yyyy-MM-dd'),
-      content: "Feeling a bit overwhelmed today with all the deadlines. I skipped my morning workout which made me feel guilty. On the positive side, I had a great call with my mentor who gave me excellent advice on my career path.",
-      prompt: "How did you handle challenges today? What would you do differently?",
-      mood: 'okay'
-    }
-  ]);
+  const { toast } = useToast();
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [entry, setEntry] = React.useState<string>('');
+  const [mood, setMood] = React.useState<Mood>('okay');
+  const [entries, setEntries] = React.useState<JournalEntry[]>([]);
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [newEntry, setNewEntry] = useState({
-    content: '',
-    mood: 'good' as const
-  });
-
-  // Today's prompt options
-  const prompts = [
-    "What are three things that went well today, and what's one thing you'd like to improve tomorrow?",
-    "How did you handle challenges today? What would you do differently?",
-    "What are you grateful for today?",
-    "What progress did you make towards your goals today?",
-    "How did you take care of your physical and mental wellbeing today?"
-  ];
-
-  const todaysPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-
-  // Check if there's an entry for the selected date
-  const currentDateStr = format(selectedDate, 'yyyy-MM-dd');
-  const currentEntry = entries.find(entry => entry.date === currentDateStr);
-
-  const handlePreviousDay = () => {
-    setSelectedDate(prev => subDays(prev, 1));
-  };
-
-  const handleNextDay = () => {
-    const tomorrow = addDays(new Date(), 1);
-    // Don't allow selecting future dates
-    if (selectedDate < tomorrow) {
-      setSelectedDate(prev => addDays(prev, 1));
-    }
-  };
-
-  const handleSaveEntry = () => {
-    if (!newEntry.content.trim()) {
-      toast.error('Please write something in your journal entry');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date) {
+      toast({
+        title: "Error",
+        description: "Please select a date.",
+      });
       return;
     }
 
-    const entryData: JournalEntry = {
-      id: Date.now().toString(),
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      content: newEntry.content,
-      prompt: todaysPrompt,
-      mood: newEntry.mood
+    const newEntry = {
+      id: Math.random().toString(36).substring(7),
+      date: format(date, 'yyyy-MM-dd'),
+      content: entry,
+      mood: mood,
     };
 
-    // Check if we're updating an existing entry or creating a new one
-    if (currentEntry) {
-      setEntries(entries.map(entry => 
-        entry.id === currentEntry.id ? entryData : entry
-      ));
-    } else {
-      setEntries([...entries, entryData]);
-    }
-
-    setNewEntry({
-      content: '',
-      mood: 'good'
+    setEntries([...entries, newEntry]);
+    setEntry('');
+    toast({
+      title: "Success",
+      description: "Journal entry saved.",
     });
-    
-    setIsOpen(false);
-    toast.success('Journal entry saved!');
   };
-
-  // Format date for display
-  const formattedDate = format(selectedDate, 'EEEE, MMMM d, yyyy');
-  const isToday = format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
 
   return (
     <MainLayout>
-      <div className="page-container space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Journal</h1>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Search size={16} />
-            </Button>
-            <Button variant="outline" size="sm">
-              <Calendar size={16} />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex justify-between items-center">
-          <Button variant="ghost" size="sm" onClick={handlePreviousDay}>
-            <ChevronLeft size={16} />
-          </Button>
-          <h2 className="text-lg font-medium">{formattedDate}</h2>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleNextDay}
-            disabled={format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')}
-          >
-            <ChevronRight size={16} />
-          </Button>
-        </div>
-        
-        {isToday && !currentEntry && (
-          <div className="mb-4">
-            <JournalPrompt prompt={todaysPrompt} onStartWriting={() => setIsOpen(true)} />
-          </div>
-        )}
-        
-        {currentEntry ? (
-          <div className="bg-card rounded-xl p-4 shadow-sm border">
-            <div className="flex justify-between items-center mb-4">
-              <div className="bg-secondary/50 text-sm px-3 py-1 rounded-full">
-                {currentEntry.mood === 'great' && '😄 Great day'}
-                {currentEntry.mood === 'good' && '🙂 Good day'}
-                {currentEntry.mood === 'okay' && '😐 Okay day'}
-                {currentEntry.mood === 'bad' && '😞 Tough day'}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1"
-                onClick={() => {
-                  setNewEntry({
-                    content: currentEntry.content,
-                    mood: currentEntry.mood
-                  });
-                  setIsOpen(true);
-                }}
-              >
-                <PencilLine size={14} />
-                <span>Edit</span>
-              </Button>
-            </div>
-            
-            {currentEntry.prompt && (
-              <div className="bg-secondary/30 p-3 rounded-lg mb-4">
-                <p className="text-sm italic">{currentEntry.prompt}</p>
-              </div>
-            )}
-            
-            <p className="whitespace-pre-wrap">{currentEntry.content}</p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 bg-card rounded-xl p-4 shadow-sm border">
-            <p className="text-muted-foreground mb-4">
-              {isToday 
-                ? "You haven't written in your journal today." 
-                : "No journal entry for this date."}
-            </p>
-            <Button 
-              onClick={() => setIsOpen(true)} 
-              className="flex items-center gap-1"
-            >
-              <PencilLine size={16} />
-              <span>{isToday ? "Write Today's Entry" : "Add Entry for This Date"}</span>
-            </Button>
-          </div>
-        )}
-        
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>
-                {currentEntry ? "Edit Journal Entry" : "New Journal Entry"}
-              </DialogTitle>
-              <DialogDescription>
-                {format(selectedDate, 'EEEE, MMMM d, yyyy')}
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4 py-2">
-              {isToday && (
-                <div className="bg-secondary/30 p-3 rounded-lg">
-                  <p className="text-sm italic">{todaysPrompt}</p>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label>How was your day?</Label>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant={newEntry.mood === 'great' ? 'default' : 'outline'}
-                    onClick={() => setNewEntry({...newEntry, mood: 'great'})}
-                    className="flex-1"
-                  >
-                    😄 Great
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={newEntry.mood === 'good' ? 'default' : 'outline'}
-                    onClick={() => setNewEntry({...newEntry, mood: 'good'})}
-                    className="flex-1"
-                  >
-                    🙂 Good
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={newEntry.mood === 'okay' ? 'default' : 'outline'}
-                    onClick={() => setNewEntry({...newEntry, mood: 'okay'})}
-                    className="flex-1"
-                  >
-                    😐 Okay
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={newEntry.mood === 'bad' ? 'default' : 'outline'}
-                    onClick={() => setNewEntry({...newEntry, mood: 'bad'})}
-                    className="flex-1"
-                  >
-                    😞 Tough
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="content">Your thoughts</Label>
-                <Textarea 
-                  id="content" 
-                  placeholder="Write your journal entry here..." 
-                  value={newEntry.content}
-                  onChange={(e) => setNewEntry({...newEntry, content: e.target.value})}
-                  className="min-h-[200px]"
+      <div className="container max-w-3xl mx-auto py-10">
+        <h1 className="text-3xl font-bold mb-6">Journal</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="date">Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[240px] justify-start text-left font-normal",
+                    !date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center" side="bottom">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={(date) =>
+                    date > new Date()
+                  }
+                  initialFocus
                 />
-              </div>
-              
-              <Button onClick={handleSaveEntry} className="w-full">Save Entry</Button>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div>
+            <Label htmlFor="mood">Mood</Label>
+            <div className="flex items-center space-x-4">
+              <button
+                type="button"
+                className={`p-2 rounded-full ${mood === 'great' ? 'bg-green-200' : 'hover:bg-green-100'}`}
+                onClick={() => setMood('great')}
+              >
+                Great
+              </button>
+              <button
+                type="button"
+                className={`p-2 rounded-full ${mood === 'good' ? 'bg-blue-200' : 'hover:bg-blue-100'}`}
+                onClick={() => setMood('good')}
+              >
+                Good
+              </button>
+              <button
+                type="button"
+                className={`p-2 rounded-full ${mood === 'okay' ? 'bg-yellow-200' : 'hover:bg-yellow-100'}`}
+                onClick={() => setMood('okay')}
+              >
+                Okay
+              </button>
+              <button
+                type="button"
+                className={`p-2 rounded-full ${mood === 'bad' ? 'bg-red-200' : 'hover:bg-red-100'}`}
+                onClick={() => setMood('bad')}
+              >
+                Bad
+              </button>
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+
+          <div>
+            <Label htmlFor="entry">Entry</Label>
+            <Textarea
+              id="entry"
+              placeholder="Write your thoughts here..."
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
+              rows={6}
+              className="resize-none"
+            />
+          </div>
+
+          <Button type="submit">Save Entry</Button>
+        </form>
+
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Previous Entries</h2>
+          {entries.length === 0 ? (
+            <p>No entries yet.</p>
+          ) : (
+            <ul className="space-y-4">
+              {entries.map((entry) => (
+                <li key={entry.id} className="border p-4 rounded-md">
+                  <h3 className="font-semibold">{entry.date} - {entry.mood}</h3>
+                  <p>{entry.content}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </MainLayout>
   );

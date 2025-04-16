@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Target, Calendar, Award, Users, BookOpen } from 'lucide-react';
+import { Home, Target, Calendar, Award, Users, BookOpen, UserCircle2 } from 'lucide-react';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -37,6 +36,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     { path: '/challenges', icon: <Award size={20} />, label: 'Challenges' },
     { path: '/community', icon: <Users size={20} />, label: 'Community' },
     { path: '/journal', icon: <BookOpen size={20} />, label: 'Journal' },
+    { path: '/profile', icon: <UserCircle2 size={20} />, label: 'Profile' },
   ];
 
   return (
