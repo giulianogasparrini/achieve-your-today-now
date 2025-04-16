@@ -1,6 +1,8 @@
-import React from 'react';
+
+import React, { useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Target, Calendar, Award, Users, BookOpen, UserCircle2 } from 'lucide-react';
+import { Home, Target, Calendar, Award, Users, BookOpen, UserCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -28,6 +30,10 @@ const NavItem = ({ icon, label, active, onClick }: NavItemProps) => {
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
 
   const navItems = [
     { path: '/', icon: <Home size={20} />, label: 'Home' },
@@ -39,21 +45,70 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     { path: '/profile', icon: <UserCircle2 size={20} />, label: 'Profile' },
   ];
 
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowLeftArrow(scrollLeft > 10);
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1 pb-16">
         {children}
       </main>
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t flex justify-around items-center p-1 z-50 shadow-sm">
-        {navItems.map((item) => (
-          <NavItem
-            key={item.path}
-            icon={item.icon}
-            label={item.label}
-            active={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-          />
-        ))}
+      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t flex flex-col p-1 z-50 shadow-sm">
+        <div className="relative">
+          {isMobile && showLeftArrow && (
+            <button 
+              onClick={scrollLeft}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 rounded-full p-1 shadow-md"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+          
+          <div 
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth" 
+            onScroll={handleScroll}
+          >
+            {navItems.map((item) => (
+              <div key={item.path} className="flex-shrink-0 snap-center">
+                <NavItem
+                  icon={item.icon}
+                  label={item.label}
+                  active={location.pathname === item.path}
+                  onClick={() => navigate(item.path)}
+                />
+              </div>
+            ))}
+          </div>
+          
+          {isMobile && showRightArrow && (
+            <button 
+              onClick={scrollRight}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 rounded-full p-1 shadow-md"
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
+        </div>
       </nav>
     </div>
   );
