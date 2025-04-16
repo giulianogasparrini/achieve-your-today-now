@@ -3,8 +3,8 @@ import React from 'react';
 import { Bell } from 'lucide-react';
 
 const WelcomeHeader = () => {
-  // In a real app, you'd fetch this from user context/state
-  const username = 'Sarah';
+  const username = localStorage.getItem('userFirstName') || 'Guest';
+  
   const timeOfDay = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'morning';
