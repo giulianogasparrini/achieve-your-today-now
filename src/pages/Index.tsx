@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import WelcomeHeader from '@/components/dashboard/WelcomeHeader';
 import DailyOverview from '@/components/dashboard/DailyOverview';
@@ -10,8 +11,11 @@ import UserStats from '@/components/gamification/UserStats';
 import JournalPrompt from '@/components/journal/JournalPrompt';
 import ChallengeCard from '@/components/challenges/ChallengeCard';
 import { Dumbbell, PencilLine, Plus, Target } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
+
   // Mock data for weekly progress
   const weeklyProgressData = [
     { name: 'Mon', value: 65 },
@@ -26,6 +30,16 @@ const Index = () => {
   // Mock journal prompt
   const todaysPrompt = "What are three things that went well today, and what's one thing you'd like to improve tomorrow?";
 
+  const handleGoalUpdate = (progress: number) => {
+    // This would update the goal in a real app
+    console.log("Updated goal progress:", progress);
+  };
+
+  const handleToggleHabit = () => {
+    // This would toggle the habit in a real app
+    console.log("Habit toggled");
+  };
+
   return (
     <MainLayout>
       <div className="page-container space-y-6">
@@ -39,10 +53,10 @@ const Index = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">Current Goals</h2>
-            <button className="flex items-center gap-1 text-sm text-accent font-medium">
+            <Link to="/goals" className="flex items-center gap-1 text-sm text-accent font-medium">
               <Plus size={16} />
               <span>Add Goal</span>
-            </button>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -52,6 +66,7 @@ const Index = () => {
               deadline="2023-09-15"
               progress={65}
               category="Fitness"
+              onUpdateProgress={handleGoalUpdate}
             />
             <GoalCard
               title="Learn Spanish basics"
@@ -59,6 +74,7 @@ const Index = () => {
               deadline="2023-08-30"
               progress={40}
               category="Learning"
+              onUpdateProgress={handleGoalUpdate}
             />
           </div>
         </div>
@@ -66,10 +82,10 @@ const Index = () => {
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">Habit Streaks</h2>
-            <button className="flex items-center gap-1 text-sm text-accent font-medium">
+            <Link to="/habits" className="flex items-center gap-1 text-sm text-accent font-medium">
               <Plus size={16} />
               <span>Add Habit</span>
-            </button>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -77,11 +93,13 @@ const Index = () => {
               name="Morning Meditation"
               streak={12}
               lastWeek={[true, true, true, true, true, false, true]}
+              onToggleToday={handleToggleHabit}
             />
             <HabitStreakDisplay
               name="Daily Exercise"
               streak={5}
               lastWeek={[false, true, true, true, true, false, true]}
+              onToggleToday={handleToggleHabit}
             />
           </div>
         </div>
@@ -101,21 +119,24 @@ const Index = () => {
           <div>
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-lg font-semibold">Today's Journal</h2>
-              <button className="flex items-center gap-1 text-sm text-accent font-medium">
+              <Link to="/journal" className="flex items-center gap-1 text-sm text-accent font-medium">
                 <PencilLine size={16} />
                 <span>Write</span>
-              </button>
+              </Link>
             </div>
-            <JournalPrompt prompt={todaysPrompt} />
+            <JournalPrompt 
+              prompt={todaysPrompt} 
+              onStartWriting={() => navigate('/journal')}
+            />
           </div>
         </div>
         
         <div>
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">Featured Challenges</h2>
-            <button className="text-sm text-accent font-medium">
+            <Link to="/challenges" className="text-sm text-accent font-medium">
               View All
-            </button>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

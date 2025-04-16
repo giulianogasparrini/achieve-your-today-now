@@ -9,6 +9,8 @@ interface ChallengeProps {
   timeLeft: string;
   joined: boolean;
   image?: string;
+  onJoin?: () => void;
+  onLeave?: () => void;
 }
 
 const ChallengeCard = ({ 
@@ -17,8 +19,18 @@ const ChallengeCard = ({
   participants, 
   timeLeft,
   joined,
-  image
+  image,
+  onJoin,
+  onLeave
 }: ChallengeProps) => {
+  const handleToggleJoin = () => {
+    if (joined && onLeave) {
+      onLeave();
+    } else if (!joined && onJoin) {
+      onJoin();
+    }
+  };
+
   return (
     <div className="bg-card rounded-xl overflow-hidden shadow-sm border transition-all hover:shadow-md">
       <div className="relative">
@@ -52,6 +64,7 @@ const ChallengeCard = ({
                 ? 'bg-theme-teal/10 text-theme-teal'
                 : 'bg-accent text-white hover:bg-accent/90'
             }`}
+            onClick={handleToggleJoin}
           >
             {joined ? 'Joined' : 'Join'}
           </button>

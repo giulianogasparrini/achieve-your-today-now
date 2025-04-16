@@ -1,6 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, CheckCircle2, ChevronRight, Target } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 
 interface GoalProps {
   title: string;
@@ -8,9 +11,20 @@ interface GoalProps {
   description: string;
   progress: number;
   category: string;
+  onUpdateProgress?: (progress: number) => void;
 }
 
-const GoalCard = ({ title, deadline, description, progress, category }: GoalProps) => {
+const GoalCard = ({ 
+  title, 
+  deadline, 
+  description, 
+  progress, 
+  category,
+  onUpdateProgress
+}: GoalProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [newProgress, setNewProgress] = useState(progress);
+  
   // Function to determine progress color
   const getProgressColor = (progress: number) => {
     if (progress < 30) return 'bg-progress-low';
@@ -23,6 +37,13 @@ const GoalCard = ({ title, deadline, description, progress, category }: GoalProp
     month: 'short',
     day: 'numeric',
   });
+
+  const handleUpdateProgress = () => {
+    if (onUpdateProgress) {
+      onUpdateProgress(newProgress);
+      setIsOpen(false);
+    }
+  };
 
   return (
     <div className="goal-card">
@@ -64,7 +85,40 @@ const GoalCard = ({ title, deadline, description, progress, category }: GoalProp
             <span>Completed!</span>
           </div>
         ) : (
-          <button className="text-xs text-accent">Update progress</button>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button variant="link" size="sm" className="text-xs p-0 h-auto text-accent">Update progress</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update Progress</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <h3 className="font-semibold">{title}</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm">Current progress: {progress}%</span>
+                    <span className="text-sm font-medium">New: {newProgress}%</span>
+                  </div>
+                  <Slider
+                    value={[newProgress]}
+                    min={0}
+                    max={100}
+                    step={5}
+                    onValueChange={(value) => setNewProgress(value[0])}
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+                <Button onClick={handleUpdateProgress} className="w-full">
+                  Save Progress
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
         <button className="flex items-center text-xs text-muted-foreground hover:text-foreground">
           <span>Details</span>

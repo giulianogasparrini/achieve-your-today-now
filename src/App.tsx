@@ -6,13 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-
-// Create placeholder pages for our future routes
-const GoalsPage = () => <div className="page-container">Goals Page (Coming Soon)</div>;
-const HabitsPage = () => <div className="page-container">Habits Page (Coming Soon)</div>;
-const ChallengesPage = () => <div className="page-container">Challenges Page (Coming Soon)</div>;
-const CommunityPage = () => <div className="page-container">Community Page (Coming Soon)</div>;
-const JournalPage = () => <div className="page-container">Journal Page (Coming Soon)</div>;
+import GoalsPage from "./pages/Goals";
+import HabitsPage from "./pages/Habits";
+import ChallengesPage from "./pages/Challenges";
+import CommunityPage from "./pages/Community";
+import JournalPage from "./pages/Journal";
 
 const queryClient = new QueryClient();
 

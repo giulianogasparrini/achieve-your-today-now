@@ -8,9 +8,10 @@ interface HabitStreakProps {
   name: string;
   streak: number;
   lastWeek: boolean[];
+  onToggleToday?: () => void;
 }
 
-const HabitStreakDisplay = ({ name, streak, lastWeek }: HabitStreakProps) => {
+const HabitStreakDisplay = ({ name, streak, lastWeek, onToggleToday }: HabitStreakProps) => {
   // Get today's index (0-6, Monday-Sunday)
   const today = new Date().getDay();
   const adjustedToday = today === 0 ? 6 : today - 1; // Convert to 0 = Monday, 6 = Sunday
@@ -44,7 +45,10 @@ const HabitStreakDisplay = ({ name, streak, lastWeek }: HabitStreakProps) => {
           return (
             <div key={index} className="flex flex-col items-center">
               <span className="text-xs mb-1 text-muted-foreground">{day}</span>
-              <div className={`streak-circle ${status}`}>
+              <div 
+                className={`streak-circle ${status} ${index === adjustedToday ? 'cursor-pointer' : ''}`}
+                onClick={index === adjustedToday ? onToggleToday : undefined}
+              >
                 {status === 'completed' && '✓'}
                 {status === 'future' && index === adjustedToday && '·'}
               </div>
@@ -53,7 +57,14 @@ const HabitStreakDisplay = ({ name, streak, lastWeek }: HabitStreakProps) => {
         })}
       </div>
       
-      <div className="mt-4 flex items-center justify-end">
+      <div className="mt-4 flex items-center justify-between">
+        <button 
+          className="text-sm px-3 py-1 rounded-lg bg-accent/10 text-accent hover:bg-accent/20"
+          onClick={onToggleToday}
+        >
+          {lastWeek[adjustedToday] ? 'Mark Incomplete' : 'Mark Complete'}
+        </button>
+        
         <button className="text-xs flex items-center text-muted-foreground hover:text-foreground">
           <Calendar size={14} className="mr-1" />
           <span>View history</span>

@@ -1,0 +1,273 @@
+
+import React, { useState } from 'react';
+import MainLayout from '@/components/layout/MainLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { PencilLine, MessageSquare, Heart, Share, Send } from 'lucide-react';
+import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+interface Post {
+  id: string;
+  user: {
+    name: string;
+    avatar: string;
+    level: number;
+  };
+  content: string;
+  image?: string;
+  likes: number;
+  comments: number;
+  timeAgo: string;
+  liked: boolean;
+}
+
+const CommunityPage = () => {
+  const [posts, setPosts] = useState<Post[]>([
+    {
+      id: '1',
+      user: {
+        name: 'Jane Cooper',
+        avatar: '',
+        level: 8
+      },
+      content: "Just completed my 30-day meditation challenge! I feel so much calmer and focused now. Who else has tried this challenge?",
+      likes: 24,
+      comments: 6,
+      timeAgo: '2h ago',
+      liked: false
+    },
+    {
+      id: '2',
+      user: {
+        name: 'Alex Morgan',
+        avatar: '',
+        level: 12
+      },
+      content: "Hit a new milestone today - ran 10km in under an hour! Been working towards this goal for months and finally achieved it. If I can do it, you can too!",
+      likes: 45,
+      comments: 12,
+      timeAgo: '5h ago',
+      liked: true
+    },
+    {
+      id: '3',
+      user: {
+        name: 'Michael Scott',
+        avatar: '',
+        level: 5
+      },
+      content: "Looking for accountability partners for a new reading challenge - 20 books in 3 months! Anyone interested in joining?",
+      likes: 18,
+      comments: 8,
+      timeAgo: '1d ago',
+      liked: false
+    }
+  ]);
+
+  const [newPost, setNewPost] = useState({
+    content: ''
+  });
+
+  const [comments, setComments] = useState<{[key: string]: string}>({});
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleCreatePost = () => {
+    if (!newPost.content.trim()) {
+      toast.error('Please write something for your post');
+      return;
+    }
+
+    const post: Post = {
+      id: Date.now().toString(),
+      user: {
+        name: 'You',
+        avatar: '',
+        level: 5
+      },
+      content: newPost.content,
+      likes: 0,
+      comments: 0,
+      timeAgo: 'Just now',
+      liked: false
+    };
+
+    setPosts([post, ...posts]);
+    setNewPost({ content: '' });
+    setIsOpen(false);
+    toast.success('Post published!');
+  };
+
+  const handleToggleLike = (id: string) => {
+    setPosts(posts.map(post => {
+      if (post.id === id) {
+        return {
+          ...post,
+          likes: post.liked ? post.likes - 1 : post.likes + 1,
+          liked: !post.liked
+        };
+      }
+      return post;
+    }));
+  };
+
+  const handleAddComment = (id: string) => {
+    if (!comments[id]?.trim()) {
+      toast.error('Please write a comment');
+      return;
+    }
+
+    setPosts(posts.map(post => {
+      if (post.id === id) {
+        return {
+          ...post,
+          comments: post.comments + 1
+        };
+      }
+      return post;
+    }));
+
+    // Clear the comment input
+    setComments({...comments, [id]: ''});
+    toast.success('Comment added!');
+  };
+
+  return (
+    <MainLayout>
+      <div className="page-container space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Community</h1>
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-1 bg-accent">
+                <PencilLine size={16} />
+                <span>Create Post</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Post</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4 py-2">
+                <div className="flex items-center space-x-2">
+                  <Avatar>
+                    <AvatarFallback>YO</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">You</p>
+                    <p className="text-xs text-muted-foreground">Level 5</p>
+                  </div>
+                </div>
+                
+                <Textarea 
+                  placeholder="What's on your mind?" 
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({...newPost, content: e.target.value})}
+                  className="min-h-[120px]"
+                />
+                
+                <Button onClick={handleCreatePost} className="w-full">Publish Post</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+        
+        <Tabs defaultValue="feed">
+          <TabsList className="mb-4">
+            <TabsTrigger value="feed">Feed</TabsTrigger>
+            <TabsTrigger value="groups">Groups</TabsTrigger>
+            <TabsTrigger value="discover">Discover</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="feed" className="space-y-4">
+            {posts.map(post => (
+              <div key={post.id} className="bg-card rounded-xl p-4 shadow-sm border">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center space-x-2">
+                    <Avatar>
+                      <AvatarFallback>{post.user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{post.user.name}</p>
+                        <span className="text-xs bg-theme-purple/10 text-theme-purple px-2 py-0.5 rounded-full">
+                          Lv. {post.user.level}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{post.timeAgo}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="mb-4">{post.content}</p>
+                
+                <div className="flex items-center justify-between border-t pt-3">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleToggleLike(post.id)}
+                    className={post.liked ? "text-red-500" : ""}
+                  >
+                    <Heart size={18} className={post.liked ? "fill-current" : ""} />
+                    <span className="ml-1">{post.likes}</span>
+                  </Button>
+                  
+                  <Button variant="ghost" size="sm">
+                    <MessageSquare size={18} />
+                    <span className="ml-1">{post.comments}</span>
+                  </Button>
+                  
+                  <Button variant="ghost" size="sm">
+                    <Share size={18} />
+                    <span className="ml-1">Share</span>
+                  </Button>
+                </div>
+                
+                <div className="mt-3 border-t pt-3">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-6 h-6">
+                      <AvatarFallback>YO</AvatarFallback>
+                    </Avatar>
+                    <Input 
+                      placeholder="Write a comment..." 
+                      className="flex-1" 
+                      value={comments[post.id] || ''}
+                      onChange={(e) => setComments({...comments, [post.id]: e.target.value})}
+                    />
+                    <Button size="sm" onClick={() => handleAddComment(post.id)}>
+                      <Send size={16} />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </TabsContent>
+          
+          <TabsContent value="groups">
+            <div className="flex flex-col items-center justify-center py-12">
+              <h3 className="text-xl font-medium mb-2">Groups Coming Soon</h3>
+              <p className="text-muted-foreground text-center max-w-md">
+                You'll soon be able to create and join groups based on your interests, goals, and challenges.
+              </p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="discover">
+            <div className="flex flex-col items-center justify-center py-12">
+              <h3 className="text-xl font-medium mb-2">Discover Coming Soon</h3>
+              <p className="text-muted-foreground text-center max-w-md">
+                Discover new friends, challenges, and communities based on your interests and goals.
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </MainLayout>
+  );
+};
+
+export default CommunityPage;
