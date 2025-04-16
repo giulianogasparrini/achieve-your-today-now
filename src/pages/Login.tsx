@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,16 +15,28 @@ const Login = () => {
     password: '',
     firstName: ''
   });
+  
+  // Check if user is already logged in
+  const isLoggedIn = localStorage.getItem('userFirstName');
+  
+  // If already logged in, redirect to home
+  if (isLoggedIn) {
+    return <Navigate to="/" replace />;
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     // Store first name in localStorage (temporary solution until Supabase integration)
     localStorage.setItem('userFirstName', formData.firstName);
+    
     toast({
       title: "Welcome!",
       description: `Nice to see you, ${formData.firstName}!`,
     });
-    navigate('/');
+    
+    // Use replace instead of push to avoid back button issues
+    navigate('/', { replace: true });
   };
 
   return (

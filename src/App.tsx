@@ -50,13 +50,76 @@ const App = () => {
                 )
               }
             />
-            <Route path="/login" element={<Login />} />
-            <Route path="/goals" element={<GoalsPage />} />
-            <Route path="/habits" element={<HabitsPage />} />
-            <Route path="/challenges" element={<ChallengesPage />} />
-            <Route path="/community" element={<CommunityPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route 
+              path="/login" 
+              element={
+                isLoggedIn ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <Login />
+                )
+              } 
+            />
+            <Route 
+              path="/goals" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <GoalsPage />
+                )
+              } 
+            />
+            <Route 
+              path="/habits" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <HabitsPage />
+                )
+              } 
+            />
+            <Route 
+              path="/challenges" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <ChallengesPage />
+                )
+              } 
+            />
+            <Route 
+              path="/community" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <CommunityPage />
+                )
+              } 
+            />
+            <Route 
+              path="/journal" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <JournalPage />
+                )
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                !isLoggedIn ? (
+                  <Navigate to="/login" replace />
+                ) : (
+                  <Profile />
+                )
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
