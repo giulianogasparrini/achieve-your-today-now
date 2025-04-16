@@ -6,9 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { PencilLine, MessageSquare, Heart, Share, Send } from 'lucide-react';
+import { PencilLine, MessageSquare, Heart, Share, Send, UserPlus, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Post {
   id: string;
@@ -16,6 +19,7 @@ interface Post {
     name: string;
     avatar: string;
     level: number;
+    following?: boolean;
   };
   content: string;
   image?: string;
@@ -32,7 +36,8 @@ const CommunityPage = () => {
       user: {
         name: 'Jane Cooper',
         avatar: '',
-        level: 8
+        level: 8,
+        following: false
       },
       content: "Just completed my 30-day meditation challenge! I feel so much calmer and focused now. Who else has tried this challenge?",
       likes: 24,
@@ -45,7 +50,8 @@ const CommunityPage = () => {
       user: {
         name: 'Alex Morgan',
         avatar: '',
-        level: 12
+        level: 12,
+        following: true
       },
       content: "Hit a new milestone today - ran 10km in under an hour! Been working towards this goal for months and finally achieved it. If I can do it, you can too!",
       likes: 45,
@@ -58,7 +64,8 @@ const CommunityPage = () => {
       user: {
         name: 'Michael Scott',
         avatar: '',
-        level: 5
+        level: 5,
+        following: false
       },
       content: "Looking for accountability partners for a new reading challenge - 20 books in 3 months! Anyone interested in joining?",
       likes: 18,
@@ -74,6 +81,8 @@ const CommunityPage = () => {
 
   const [comments, setComments] = useState<{[key: string]: string}>({});
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Post['user'] | null>(null);
+  const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
 
   const handleCreatePost = () => {
     if (!newPost.content.trim()) {
@@ -86,7 +95,8 @@ const CommunityPage = () => {
       user: {
         name: 'You',
         avatar: '',
-        level: 5
+        level: 5,
+        following: false
       },
       content: newPost.content,
       likes: 0,
@@ -133,6 +143,43 @@ const CommunityPage = () => {
     // Clear the comment input
     setComments({...comments, [id]: ''});
     toast.success('Comment added!');
+  };
+
+  const handleOpenUserProfile = (user: Post['user']) => {
+    setSelectedUser(user);
+    setIsUserProfileOpen(true);
+  };
+
+  const handleToggleFollow = () => {
+    if (!selectedUser) return;
+    
+    // Update the selected user following state
+    setSelectedUser({
+      ...selectedUser,
+      following: !selectedUser.following
+    });
+    
+    // Update the user in posts
+    setPosts(posts.map(post => {
+      if (post.user.name === selectedUser.name) {
+        return {
+          ...post,
+          user: {
+            ...post.user,
+            following: !selectedUser.following
+          }
+        };
+      }
+      return post;
+    }));
+    
+    toast.success(selectedUser.following ? 'Unfollowed user' : 'Following user');
+  };
+
+  const handleSendMessage = () => {
+    if (!selectedUser) return;
+    toast.success(`Message dialog opened for ${selectedUser.name}`);
+    // Here you would typically open a chat interface or messaging page
   };
 
   return (
@@ -187,13 +234,16 @@ const CommunityPage = () => {
             {posts.map(post => (
               <div key={post.id} className="bg-card rounded-xl p-4 shadow-sm border">
                 <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center space-x-2">
+                  <div 
+                    className="flex items-center space-x-2 cursor-pointer"
+                    onClick={() => handleOpenUserProfile(post.user)}
+                  >
                     <Avatar>
                       <AvatarFallback>{post.user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{post.user.name}</p>
+                        <p className="font-medium hover:underline">{post.user.name}</p>
                         <span className="text-xs bg-theme-purple/10 text-theme-purple px-2 py-0.5 rounded-full">
                           Lv. {post.user.level}
                         </span>
@@ -266,6 +316,89 @@ const CommunityPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* User Profile Dialog */}
+      <Dialog open={isUserProfileOpen} onOpenChange={setIsUserProfileOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>User Profile</DialogTitle>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="flex flex-col items-center space-y-4">
+              <Avatar className="w-24 h-24">
+                <AvatarFallback className="text-xl">
+                  {selectedUser.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              
+              <div className="text-center">
+                <h3 className="font-semibold text-lg">{selectedUser.name}</h3>
+                <p className="text-muted-foreground text-sm">
+                  Level {selectedUser.level} • Community Member
+                </p>
+              </div>
+              
+              <div className="flex space-x-2 w-full">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={handleToggleFollow}
+                        variant={selectedUser.following ? "outline" : "default"}
+                        className="flex-1"
+                      >
+                        <UserPlus size={16} />
+                        <span>{selectedUser.following ? 'Unfollow' : 'Follow'}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{selectedUser.following ? 'Unfollow' : 'Follow'} {selectedUser.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={handleSendMessage}
+                        variant="secondary"
+                        className="flex-1"
+                      >
+                        <MessageCircle size={16} />
+                        <span>Message</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Send a message to {selectedUser.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              
+              <Card className="w-full">
+                <CardContent className="pt-6">
+                  <div className="flex justify-between text-center">
+                    <div>
+                      <p className="text-xl font-bold">12</p>
+                      <p className="text-muted-foreground text-xs">Posts</p>
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold">243</p>
+                      <p className="text-muted-foreground text-xs">Followers</p>
+                    </div>
+                    <div>
+                      <p className="text-xl font-bold">135</p>
+                      <p className="text-muted-foreground text-xs">Following</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
