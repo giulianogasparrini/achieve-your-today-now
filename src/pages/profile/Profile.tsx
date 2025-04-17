@@ -1,7 +1,6 @@
 
 import React from 'react';
 import MainLayout from "../../components/layout/MainLayout";
-import ProfileAvatar from "../../components/profile/ProfileAvatar";
 import ProfileContent from "../../components/profile/ProfileContent";
 
 const Profile = () => {
