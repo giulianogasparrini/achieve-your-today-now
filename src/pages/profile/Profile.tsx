@@ -13,8 +13,17 @@ const Profile = () => {
     avatarUrl: "https://i.pravatar.cc/300"
   };
 
-  const handleAvatarChange = (url: string) => {
-    console.log("Avatar changed:", url);
+  // Update the function signature to match what ProfileAvatar expects
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const url = e.target?.result as string;
+        console.log("Avatar changed:", url);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleProfileUpdate = (data: any) => {
