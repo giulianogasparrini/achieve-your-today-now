@@ -1,11 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getCurrentUser, logout } from '@/services/auth';
+import { getUserProfile, updateUserProfile } from '@/services/user';
 import {
   Sheet,
   SheetContent,
@@ -19,9 +21,21 @@ const Profile = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [firstName, setFirstName] = React.useState(localStorage.getItem('userFirstName') || '');
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [bio, setBio] = React.useState('Fitness enthusiast and software developer');
   const [avatarUrl, setAvatarUrl] = React.useState(localStorage.getItem('userAvatar') || '');
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+
+  // Load user data from auth service
+  useEffect(() => {
+    const user = getUserProfile();
+    if (user) {
+      setFirstName(user.firstName || '');
+      setEmail(user.email || '');
+    }
+  }, []);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,7 +56,7 @@ const Profile = () => {
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('userFirstName', firstName);
+    updateUserProfile({ firstName, email });
     toast({
       title: "Success",
       description: "Profile updated successfully",
@@ -50,7 +64,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userFirstName');
+    logout();
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('hasVisited');
     toast({
@@ -79,10 +93,16 @@ const Profile = () => {
               <div className="px-2 py-4 overflow-y-auto">
                 <ProfileContent
                   firstName={firstName}
+                  lastName={lastName}
+                  email={email}
+                  bio={bio}
                   avatarUrl={avatarUrl}
                   onFirstNameChange={(e) => setFirstName(e.target.value)}
+                  onLastNameChange={(e) => setLastName(e.target.value)}
+                  onBioChange={(e) => setBio(e.target.value)}
                   onAvatarChange={handleAvatarChange}
                   onSubmit={handleUpdateProfile}
+                  onSave={handleUpdateProfile}
                   onLogout={handleLogout}
                 />
               </div>
@@ -94,10 +114,16 @@ const Profile = () => {
           <h1 className="text-2xl font-bold">Profile Settings</h1>
           <ProfileContent
             firstName={firstName}
+            lastName={lastName}
+            email={email}
+            bio={bio}
             avatarUrl={avatarUrl}
             onFirstNameChange={(e) => setFirstName(e.target.value)}
+            onLastNameChange={(e) => setLastName(e.target.value)}
+            onBioChange={(e) => setBio(e.target.value)}
             onAvatarChange={handleAvatarChange}
             onSubmit={handleUpdateProfile}
+            onSave={handleUpdateProfile}
             onLogout={handleLogout}
           />
         </div>

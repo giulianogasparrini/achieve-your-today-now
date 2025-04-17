@@ -15,6 +15,8 @@ interface ProfileContentProps {
   onAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBioChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSave: (data: any) => void;
+  onSubmit?: (e: React.FormEvent) => void;
+  onLogout?: () => void;
 }
 
 const ProfileContent = ({
@@ -28,6 +30,8 @@ const ProfileContent = ({
   onAvatarChange,
   onBioChange,
   onSave,
+  onSubmit,
+  onLogout,
 }: ProfileContentProps) => {
   return (
     <ScrollArea className="h-full pr-2">
@@ -44,7 +48,8 @@ const ProfileContent = ({
           onFirstNameChange={onFirstNameChange}
           onLastNameChange={onLastNameChange}
           onBioChange={onBioChange}
-          onSubmit={onSave}
+          onSubmit={onSubmit || onSave}
+          onLogout={onLogout}
         />
       </div>
     </ScrollArea>

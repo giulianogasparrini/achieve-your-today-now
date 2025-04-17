@@ -1,23 +1,188 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import JournalPrompt from "../../components/journal/JournalPrompt";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar"
+import { CalendarIcon } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+
+type Mood = 'great' | 'good' | 'okay' | 'bad';
+
+interface JournalEntry {
+  id: string;
+  date: string;
+  content: string;
+  mood: Mood;
+}
 
 const Journal = () => {
+  const { toast } = useToast();
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [entry, setEntry] = useState<string>('');
+  const [mood, setMood] = useState<Mood>('okay');
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [isWriting, setIsWriting] = useState(false);
+
   const todaysPrompt = "What are three things that went well today, and what's one thing you'd like to improve tomorrow?";
 
+  // Load saved entries from localStorage
+  useEffect(() => {
+    const savedEntries = localStorage.getItem('journalEntries');
+    if (savedEntries) {
+      setEntries(JSON.parse(savedEntries));
+    }
+  }, []);
+
   const handleStartWriting = () => {
+    setIsWriting(true);
     console.log("Started writing journal entry");
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date) {
+      toast({
+        title: "Error",
+        description: "Please select a date.",
+      });
+      return;
+    }
+
+    const newEntry = {
+      id: Math.random().toString(36).substring(7),
+      date: format(date, 'yyyy-MM-dd'),
+      content: entry,
+      mood: mood,
+    };
+
+    const updatedEntries = [...entries, newEntry];
+    setEntries(updatedEntries);
+    localStorage.setItem('journalEntries', JSON.stringify(updatedEntries));
+    setEntry('');
+    setIsWriting(false);
+    toast({
+      title: "Success",
+      description: "Journal entry saved.",
+    });
   };
 
   return (
     <MainLayout>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Journal</h1>
-        <JournalPrompt 
-          prompt={todaysPrompt}
-          onStartWriting={handleStartWriting}
-        />
+      <div className="container max-w-3xl mx-auto py-10">
+        <h1 className="text-3xl font-bold mb-6">Journal</h1>
+
+        {!isWriting ? (
+          <JournalPrompt 
+            prompt={todaysPrompt}
+            onStartWriting={handleStartWriting}
+          />
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="date">Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center" side="bottom">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    disabled={(date) =>
+                      date > new Date()
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div>
+              <Label htmlFor="mood">Mood</Label>
+              <div className="flex items-center space-x-4">
+                <button
+                  type="button"
+                  className={`p-2 rounded-full ${mood === 'great' ? 'bg-green-200' : 'hover:bg-green-100'}`}
+                  onClick={() => setMood('great')}
+                >
+                  Great
+                </button>
+                <button
+                  type="button"
+                  className={`p-2 rounded-full ${mood === 'good' ? 'bg-blue-200' : 'hover:bg-blue-100'}`}
+                  onClick={() => setMood('good')}
+                >
+                  Good
+                </button>
+                <button
+                  type="button"
+                  className={`p-2 rounded-full ${mood === 'okay' ? 'bg-yellow-200' : 'hover:bg-yellow-100'}`}
+                  onClick={() => setMood('okay')}
+                >
+                  Okay
+                </button>
+                <button
+                  type="button"
+                  className={`p-2 rounded-full ${mood === 'bad' ? 'bg-red-200' : 'hover:bg-red-100'}`}
+                  onClick={() => setMood('bad')}
+                >
+                  Bad
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="entry">Entry</Label>
+              <Textarea
+                id="entry"
+                placeholder="Write your thoughts here..."
+                value={entry}
+                onChange={(e) => setEntry(e.target.value)}
+                rows={6}
+                className="resize-none"
+              />
+            </div>
+
+            <div className="flex space-x-2">
+              <Button type="submit">Save Entry</Button>
+              <Button type="button" variant="outline" onClick={() => setIsWriting(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        )}
+
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4">Previous Entries</h2>
+          {entries.length === 0 ? (
+            <p>No entries yet.</p>
+          ) : (
+            <ul className="space-y-4">
+              {entries.map((entry) => (
+                <li key={entry.id} className="border p-4 rounded-md">
+                  <h3 className="font-semibold">{entry.date} - {entry.mood}</h3>
+                  <p>{entry.content}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </MainLayout>
   );
