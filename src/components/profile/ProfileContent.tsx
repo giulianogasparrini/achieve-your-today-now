@@ -16,7 +16,7 @@ interface ProfileContentProps {
   onBioChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSave: (data: any) => void;
   onSubmit?: (e: React.FormEvent) => void;
-  onLogout?: () => void;
+  onLogout: () => void;  // Changed from optional to required
 }
 
 const ProfileContent = ({

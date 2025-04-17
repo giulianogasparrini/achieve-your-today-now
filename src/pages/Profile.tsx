@@ -24,16 +24,28 @@ const Profile = () => {
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
-  const [bio, setBio] = React.useState('Fitness enthusiast and software developer');
-  const [avatarUrl, setAvatarUrl] = React.useState(localStorage.getItem('userAvatar') || '');
+  const [bio, setBio] = React.useState('');
+  const [avatarUrl, setAvatarUrl] = React.useState('');
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
-  // Load user data from auth service
+  // Load user data from auth service and localStorage
   useEffect(() => {
     const user = getUserProfile();
     if (user) {
       setFirstName(user.firstName || '');
       setEmail(user.email || '');
+      
+      // Load lastName and bio from localStorage if available
+      const savedLastName = localStorage.getItem('userLastName') || '';
+      const savedBio = localStorage.getItem('userBio') || 'Fitness enthusiast and software developer';
+      setLastName(savedLastName);
+      setBio(savedBio);
+    }
+    
+    // Only set avatar URL from localStorage if available, don't use a default URL
+    const savedAvatarUrl = localStorage.getItem('userAvatar');
+    if (savedAvatarUrl) {
+      setAvatarUrl(savedAvatarUrl);
     }
   }, []);
 
@@ -56,7 +68,12 @@ const Profile = () => {
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Save all profile data to localStorage
     updateUserProfile({ firstName, email });
+    localStorage.setItem('userLastName', lastName);
+    localStorage.setItem('userBio', bio);
+    
     toast({
       title: "Success",
       description: "Profile updated successfully",
@@ -66,6 +83,8 @@ const Profile = () => {
   const handleLogout = () => {
     logout();
     localStorage.removeItem('userAvatar');
+    localStorage.removeItem('userLastName');
+    localStorage.removeItem('userBio');
     localStorage.removeItem('hasVisited');
     toast({
       title: "Goodbye!",
