@@ -1,4 +1,3 @@
-
 import { User } from './auth';
 
 // Mock user data service
@@ -23,22 +22,21 @@ export const getUserProfile = (): User | null => {
 /**
  * Update user profile
  */
-export const updateUserProfile = (updatedUser: Partial<User>): boolean => {
-  const currentUser = getUserProfile();
+export const updateUserProfile = (userData: {
+  firstName: string;
+  email: string;
+  id?: string; // Make id optional
+}) => {
+  // Generate a default id if not provided (needed for User interface compatibility)
+  const user = {
+    ...userData,
+    id: userData.id || localStorage.getItem('userId') || 'default-id'
+  };
   
-  if (!currentUser) {
-    return false;
-  }
+  localStorage.setItem('userFirstName', user.firstName);
+  localStorage.setItem('userId', user.id);
   
-  if (updatedUser.firstName) {
-    localStorage.setItem('userFirstName', updatedUser.firstName);
-  }
-  
-  if (updatedUser.email) {
-    localStorage.setItem('userEmail', updatedUser.email);
-  }
-  
-  return true;
+  return user;
 };
 
 /**

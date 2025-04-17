@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import ProfileContent from "../../components/profile/ProfileContent";
-import { getCurrentUser, logout } from "@/services/auth";
+import { getCurrentUser, signOut } from "@/services/auth";
 import { getUserProfile, updateUserProfile } from "@/services/user";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from 'react-router-dom';
@@ -67,7 +67,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    signOut();
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('userLastName');
     localStorage.removeItem('userBio');

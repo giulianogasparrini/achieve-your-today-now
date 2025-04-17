@@ -6,7 +6,7 @@ import { ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getCurrentUser, logout } from '@/services/auth';
+import { getCurrentUser, signOut } from '@/services/auth';
 import { getUserProfile, updateUserProfile } from '@/services/user';
 import {
   Sheet,
@@ -81,7 +81,7 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    signOut();
     localStorage.removeItem('userAvatar');
     localStorage.removeItem('userLastName');
     localStorage.removeItem('userBio');

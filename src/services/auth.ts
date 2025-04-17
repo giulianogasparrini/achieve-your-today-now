@@ -26,6 +26,9 @@ export const signOut = async () => {
   if (error) throw error;
 };
 
+// Add logout as an alias for signOut for backward compatibility
+export const logout = signOut;
+
 export const getCurrentSession = async () => {
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error) throw error;
