@@ -206,7 +206,7 @@ const Login = () => {
                 Continue with Twitter
               </Button>
             </div>
-          </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
