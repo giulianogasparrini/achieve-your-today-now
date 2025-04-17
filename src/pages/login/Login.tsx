@@ -1,39 +1,26 @@
 
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Github, Mail } from 'lucide-react';
+import { signInWithSocial } from '@/services/auth';
 
 const Login = () => {
-  const [firstName, setFirstName] = useState("");
-  const [email, setEmail] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!firstName || !email) {
+  const handleSocialLogin = async (provider: 'github' | 'google' | 'twitter') => {
+    try {
+      await signInWithSocial(provider);
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Please fill in all fields",
+        description: "Failed to sign in. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    localStorage.setItem("userFirstName", firstName);
-    localStorage.setItem("userEmail", email);
-    
-    toast({
-      title: "Success",
-      description: isLogin ? "Welcome back!" : "Account created successfully!",
-    });
-    
-    navigate("/");
   };
 
   return (
@@ -41,55 +28,44 @@ const Login = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
-            {isLogin ? "Sign In" : "Create Account"}
+            Welcome Back
           </CardTitle>
           <CardDescription className="text-center">
-            {isLogin
-              ? "Enter your details to sign in to your account"
-              : "Enter your details to create a new account"}
+            Choose your preferred way to sign in
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Name
-              </label>
-              <Input
-                id="name"
-                placeholder="Enter your name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              {isLogin ? "Sign In" : "Create Account"}
+          <div className="flex flex-col gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => handleSocialLogin('google')}
+              className="w-full"
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Continue with Google
             </Button>
-          </form>
+            
+            <Button 
+              variant="outline" 
+              onClick={() => handleSocialLogin('github')}
+              className="w-full"
+            >
+              <Github className="mr-2 h-4 w-4" />
+              Continue with GitHub
+            </Button>
+
+            <Button 
+              variant="outline" 
+              onClick={() => handleSocialLogin('twitter')}
+              className="w-full"
+            >
+              <svg className="mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M22.46 6c-.77.35-1.6.58-2.46.69c.88-.53 1.56-1.37 1.88-2.38c-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29c0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15c0 1.49.75 2.81 1.91 3.56c-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07a4.28 4.28 0 0 0 4 2.98a8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21C16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56c.84-.6 1.56-1.36 2.14-2.23z" />
+              </svg>
+              Continue with Twitter
+            </Button>
+          </div>
         </CardContent>
-        <CardFooter>
-          <Button
-            variant="link"
-            className="w-full"
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin
-              ? "Don't have an account? Create one"
-              : "Already have an account? Sign in"}
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

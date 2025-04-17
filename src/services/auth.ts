@@ -1,52 +1,44 @@
 
-// Basic authentication service
+import { supabase } from "@/integrations/supabase/client";
+import { Provider } from "@supabase/supabase-js";
 
 export interface User {
+  id: string;
   firstName: string;
   email: string;
+  avatarUrl?: string;
 }
 
-/**
- * Get the current user from local storage
- */
-export const getCurrentUser = (): User | null => {
-  const firstName = localStorage.getItem('userFirstName');
-  const email = localStorage.getItem('userEmail');
+export const signInWithSocial = async (provider: Provider) => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: window.location.origin + '/auth/callback'
+    }
+  });
   
-  if (!firstName || !email) {
-    return null;
-  }
-  
-  return {
-    firstName,
-    email,
-  };
+  if (error) throw error;
+  return data;
 };
 
-/**
- * Log in a user
- */
-export const login = (firstName: string, email: string): boolean => {
-  if (!firstName || !email) {
-    return false;
-  }
-  
-  localStorage.setItem('userFirstName', firstName);
-  localStorage.setItem('userEmail', email);
-  return true;
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
 };
 
-/**
- * Log out the current user
- */
-export const logout = (): void => {
-  localStorage.removeItem('userFirstName');
-  localStorage.removeItem('userEmail');
+export const getCurrentSession = async () => {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return session;
 };
 
-/**
- * Check if a user is logged in
- */
-export const isAuthenticated = (): boolean => {
-  return !!getCurrentUser();
+export const getCurrentUser = async () => {
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return user;
+};
+
+export const isAuthenticated = async () => {
+  const session = await getCurrentSession();
+  return !!session;
 };

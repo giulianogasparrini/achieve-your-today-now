@@ -1,7 +1,7 @@
-
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import ProtectedRoutes from "./ProtectedRoutes";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
@@ -12,17 +12,25 @@ import ChallengesPage from "../pages/challenges/Challenges";
 import CommunityPage from "../pages/community/Community";
 import JournalPage from "../pages/journal/Journal";
 import Profile from "../pages/profile/Profile";
+import AuthCallback from "../pages/auth/AuthCallback";
 
 const AppNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const hasVisited = localStorage.getItem('hasVisited');
-  const isLoggedIn = localStorage.getItem('userFirstName');
+  const [session, setSession] = useState(null);
 
   useEffect(() => {
-    if (!hasVisited) {
-      localStorage.setItem('hasVisited', 'true');
-    }
-    setIsLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isLoading) {
@@ -32,30 +40,20 @@ const AppNavigator = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/"
-          element={
-            !isLoggedIn ? (
-              <Navigate to="/login" replace />
-            ) : (
-              <Home />
-            )
-          }
-        />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/login" element={<Login />} />
         <Route 
-          path="/login" 
+          path="/" 
           element={
-            isLoggedIn ? (
-              <Navigate to="/" replace />
-            ) : (
-              <Login />
-            )
+            <ProtectedRoutes isLoggedIn={!!session}>
+              <Home />
+            </ProtectedRoutes>
           } 
         />
         <Route 
           path="/goals" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <GoalsPage />
             </ProtectedRoutes>
           } 
@@ -63,7 +61,7 @@ const AppNavigator = () => {
         <Route 
           path="/habits" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <HabitsPage />
             </ProtectedRoutes>
           } 
@@ -71,7 +69,7 @@ const AppNavigator = () => {
         <Route 
           path="/challenges" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <ChallengesPage />
             </ProtectedRoutes>
           } 
@@ -79,7 +77,7 @@ const AppNavigator = () => {
         <Route 
           path="/community" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <CommunityPage />
             </ProtectedRoutes>
           } 
@@ -87,7 +85,7 @@ const AppNavigator = () => {
         <Route 
           path="/journal" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <JournalPage />
             </ProtectedRoutes>
           } 
@@ -95,7 +93,7 @@ const AppNavigator = () => {
         <Route 
           path="/profile" 
           element={
-            <ProtectedRoutes isLoggedIn={!!isLoggedIn}>
+            <ProtectedRoutes isLoggedIn={!!session}>
               <Profile />
             </ProtectedRoutes>
           } 
