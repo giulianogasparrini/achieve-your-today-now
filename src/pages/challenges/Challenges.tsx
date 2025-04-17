@@ -39,6 +39,7 @@ const Challenges = () => {
           {challenges.map(challenge => (
             <ChallengeCard 
               key={challenge.id}
+              id={challenge.id}
               title={challenge.title}
               description={challenge.description}
               participants={challenge.participants}

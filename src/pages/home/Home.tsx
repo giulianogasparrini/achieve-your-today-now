@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import DailyOverview from "../../components/dashboard/DailyOverview";
@@ -141,6 +140,7 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ChallengeCard
+              id="1"
               title="30-Day Fitness Challenge"
               description="Exercise for at least 30 minutes every day for 30 days."
               participants={243}
@@ -148,6 +148,7 @@ const Home = () => {
               joined={true}
             />
             <ChallengeCard
+              id="2"
               title="Mindfulness Meditation"
               description="Practice mindfulness meditation for 10 minutes daily. Develop a calmer mind and better focus."
               participants={156}

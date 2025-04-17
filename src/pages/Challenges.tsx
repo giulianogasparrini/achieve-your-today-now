@@ -206,6 +206,7 @@ const ChallengesPage = () => {
             {challenges.map(challenge => (
               <ChallengeCard
                 key={challenge.id}
+                id={challenge.id}
                 title={challenge.title}
                 description={challenge.description}
                 participants={challenge.participants}
@@ -221,6 +222,7 @@ const ChallengesPage = () => {
             {challenges.filter(challenge => challenge.joined).map(challenge => (
               <ChallengeCard
                 key={challenge.id}
+                id={challenge.id}
                 title={challenge.title}
                 description={challenge.description}
                 participants={challenge.participants}
@@ -236,6 +238,7 @@ const ChallengesPage = () => {
             {challenges.filter(challenge => !challenge.joined).map(challenge => (
               <ChallengeCard
                 key={challenge.id}
+                id={challenge.id}
                 title={challenge.title}
                 description={challenge.description}
                 participants={challenge.participants}
