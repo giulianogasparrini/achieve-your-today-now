@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Calendar } from 'lucide-react';
 import HabitHistoryModal from './HabitHistoryModal';
@@ -9,6 +10,8 @@ interface HabitStreakProps {
   onToggleToday?: () => void;
   completedDates?: Date[];
 }
+
+const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const HabitStreakDisplay = ({ 
   name = "New Habit", 
