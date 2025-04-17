@@ -11,9 +11,9 @@ interface ProfileContentProps {
   bio: string;
   avatarUrl: string;
   onFirstNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onLastNameChange: (name: any) => void;
+  onLastNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onBioChange: (bio: any) => void;
+  onBioChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSave: (data: any) => void;
 }
 

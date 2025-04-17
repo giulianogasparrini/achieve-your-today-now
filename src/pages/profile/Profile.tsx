@@ -13,7 +13,6 @@ const Profile = () => {
     avatarUrl: "https://i.pravatar.cc/300"
   };
 
-  // Update the function signature to match what ProfileAvatar expects
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
