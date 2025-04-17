@@ -1,39 +1,34 @@
 import { User } from './auth';
 
 // Mock user data service
-
-/**
- * Get user profile data
- */
 export const getUserProfile = (): User | null => {
   const firstName = localStorage.getItem('userFirstName');
   const email = localStorage.getItem('userEmail');
+  const id = localStorage.getItem('userId');
   
-  if (!firstName || !email) {
+  if (!firstName || !email || !id) {
     return null;
   }
   
   return {
+    id,
     firstName,
     email,
   };
 };
 
-/**
- * Update user profile
- */
 export const updateUserProfile = (userData: {
   firstName: string;
   email: string;
-  id?: string; // Make id optional
+  id?: string;
 }) => {
-  // Generate a default id if not provided (needed for User interface compatibility)
   const user = {
     ...userData,
     id: userData.id || localStorage.getItem('userId') || 'default-id'
   };
   
   localStorage.setItem('userFirstName', user.firstName);
+  localStorage.setItem('userEmail', user.email);
   localStorage.setItem('userId', user.id);
   
   return user;
