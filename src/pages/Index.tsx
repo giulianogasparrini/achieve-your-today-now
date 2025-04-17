@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
@@ -12,9 +11,11 @@ import JournalPrompt from '@/components/journal/JournalPrompt';
 import ChallengeCard from '@/components/challenges/ChallengeCard';
 import { Dumbbell, PencilLine, Plus, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useChallenges } from '@/hooks/useChallenges';
 
 const Index = () => {
   const navigate = useNavigate();
+  const { challenges, handleJoinChallenge, handleLeaveChallenge } = useChallenges();
 
   // Mock data for weekly progress
   const weeklyProgressData = [
@@ -140,20 +141,14 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ChallengeCard
-              title="30-Day Fitness Challenge"
-              description="Exercise for at least 30 minutes every day for 30 days."
-              participants={243}
-              timeLeft="18 days left"
-              joined={true}
-            />
-            <ChallengeCard
-              title="Mindfulness Meditation"
-              description="Practice mindfulness meditation for 10 minutes daily. Develop a calmer mind and better focus."
-              participants={156}
-              timeLeft="26 days left"
-              joined={false}
-            />
+            {challenges.slice(0, 2).map((challenge) => (
+              <ChallengeCard
+                key={challenge.id}
+                {...challenge}
+                onJoin={handleJoinChallenge}
+                onLeave={handleLeaveChallenge}
+              />
+            ))}
           </div>
         </div>
       </div>

@@ -26,8 +26,14 @@ const HabitStreakDisplay = ({
   const today = new Date().getDay();
   const adjustedToday = today === 0 ? 6 : today - 1; // Convert to 0 = Monday, 6 = Sunday
 
+  const handleToggle = () => {
+    if (onToggleToday) {
+      onToggleToday();
+    }
+  };
+
   return (
-    <div className="habit-card">
+    <div className="habit-card p-4 bg-card rounded-lg border shadow-sm">
       <div className="flex justify-between items-center mb-3">
         <h3 className="font-medium">{name}</h3>
         <div className="flex items-center gap-1 text-xs font-semibold bg-theme-purple/10 text-theme-purple px-2 py-1 rounded-full">
@@ -39,16 +45,11 @@ const HabitStreakDisplay = ({
       <div className="flex justify-between mt-2">
         {days.map((day, index) => {
           let status;
-          // For days in the past
           if (index < adjustedToday) {
             status = lastWeek[index] ? 'completed' : 'missed';
-          }
-          // For today
-          else if (index === adjustedToday) {
-            status = lastWeek[index] ? 'completed' : 'future'; // If already completed today
-          }
-          // For future days
-          else {
+          } else if (index === adjustedToday) {
+            status = lastWeek[index] ? 'completed' : 'future';
+          } else {
             status = 'future';
           }
           
@@ -57,7 +58,7 @@ const HabitStreakDisplay = ({
               <span className="text-xs mb-1 text-muted-foreground">{day}</span>
               <div 
                 className={`streak-circle ${status} ${index === adjustedToday ? 'cursor-pointer' : ''}`}
-                onClick={index === adjustedToday ? onToggleToday : undefined}
+                onClick={index === adjustedToday ? handleToggle : undefined}
               >
                 {status === 'completed' && '✓'}
                 {status === 'future' && index === adjustedToday && '·'}
@@ -70,7 +71,7 @@ const HabitStreakDisplay = ({
       <div className="mt-4 flex items-center justify-between">
         <button 
           className="text-sm px-3 py-1 rounded-lg bg-accent/10 text-accent hover:bg-accent/20"
-          onClick={onToggleToday}
+          onClick={handleToggle}
         >
           {lastWeek[adjustedToday] ? 'Mark Incomplete' : 'Mark Complete'}
         </button>

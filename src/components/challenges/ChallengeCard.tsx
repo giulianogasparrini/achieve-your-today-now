@@ -1,19 +1,22 @@
 
 import React from 'react';
 import { Trophy, Users } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ChallengeProps {
+  id: string;
   title: string;
   description: string;
   participants: number;
   timeLeft: string;
   joined: boolean;
   image?: string;
-  onJoin?: () => void;
-  onLeave?: () => void;
+  onJoin?: (id: string) => void;
+  onLeave?: (id: string) => void;
 }
 
 const ChallengeCard = ({ 
+  id,
   title, 
   description, 
   participants, 
@@ -25,9 +28,11 @@ const ChallengeCard = ({
 }: ChallengeProps) => {
   const handleToggleJoin = () => {
     if (joined && onLeave) {
-      onLeave();
+      onLeave(id);
+      toast.success('Left the challenge');
     } else if (!joined && onJoin) {
-      onJoin();
+      onJoin(id);
+      toast.success('Joined the challenge');
     }
   };
 
