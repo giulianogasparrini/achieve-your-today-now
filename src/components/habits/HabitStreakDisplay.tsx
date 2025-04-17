@@ -5,13 +5,18 @@ import { Calendar } from 'lucide-react';
 const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 interface HabitStreakProps {
-  name: string;
-  streak: number;
-  lastWeek: boolean[];
+  name?: string;
+  streak?: number;
+  lastWeek?: boolean[];
   onToggleToday?: () => void;
 }
 
-const HabitStreakDisplay = ({ name, streak, lastWeek, onToggleToday }: HabitStreakProps) => {
+const HabitStreakDisplay = ({ 
+  name = "New Habit", 
+  streak = 0, 
+  lastWeek = [false, false, false, false, false, false, false], 
+  onToggleToday 
+}: HabitStreakProps) => {
   // Get today's index (0-6, Monday-Sunday)
   const today = new Date().getDay();
   const adjustedToday = today === 0 ? 6 : today - 1; // Convert to 0 = Monday, 6 = Sunday

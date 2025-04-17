@@ -5,17 +5,44 @@ import ProfileAvatar from "../../components/profile/ProfileAvatar";
 import ProfileContent from "../../components/profile/ProfileContent";
 
 const Profile = () => {
+  const userData = {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    bio: "Fitness enthusiast and software developer",
+    avatarUrl: "https://i.pravatar.cc/300"
+  };
+
+  const handleAvatarChange = (url: string) => {
+    console.log("Avatar changed:", url);
+  };
+
+  const handleProfileUpdate = (data: any) => {
+    console.log("Profile updated:", data);
+  };
+
   return (
     <MainLayout>
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="w-full md:w-1/3">
-            <ProfileAvatar />
-          </div>
-          <div className="w-full md:w-2/3">
-            <ProfileContent />
-          </div>
+        <div className="grid gap-4">
+          <ProfileAvatar 
+            avatarUrl={userData.avatarUrl} 
+            onAvatarChange={handleAvatarChange} 
+          />
+          
+          <ProfileContent
+            firstName={userData.firstName}
+            lastName={userData.lastName}
+            email={userData.email}
+            bio={userData.bio}
+            avatarUrl={userData.avatarUrl}
+            onFirstNameChange={(name) => console.log("First name changed:", name)}
+            onLastNameChange={(name) => console.log("Last name changed:", name)}
+            onAvatarChange={handleAvatarChange}
+            onBioChange={(bio) => console.log("Bio changed:", bio)}
+            onSave={handleProfileUpdate}
+          />
         </div>
       </div>
     </MainLayout>
