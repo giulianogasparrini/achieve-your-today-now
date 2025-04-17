@@ -2,12 +2,14 @@
 import React, { useEffect } from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import ProfileContent from "../../components/profile/ProfileContent";
-import { getCurrentUser } from "@/services/auth";
+import { getCurrentUser, logout } from "@/services/auth";
 import { getUserProfile, updateUserProfile } from "@/services/user";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -20,6 +22,18 @@ const Profile = () => {
     if (user) {
       setFirstName(user.firstName || '');
       setEmail(user.email || '');
+      
+      // Load lastName and bio from localStorage if available
+      const savedLastName = localStorage.getItem('userLastName') || '';
+      const savedBio = localStorage.getItem('userBio') || 'Fitness enthusiast and software developer';
+      setLastName(savedLastName);
+      setBio(savedBio);
+    }
+    
+    // Only set avatar URL from localStorage if available
+    const savedAvatarUrl = localStorage.getItem('userAvatar');
+    if (savedAvatarUrl) {
+      setAvatarUrl(savedAvatarUrl);
     }
   }, []);
 
@@ -41,11 +55,27 @@ const Profile = () => {
   };
 
   const handleProfileUpdate = (data: any) => {
+    // Save all profile data to localStorage
     updateUserProfile({ firstName });
+    localStorage.setItem('userLastName', lastName);
+    localStorage.setItem('userBio', bio);
+    
     toast({
       title: "Success",
       description: "Profile updated successfully",
     });
+  };
+
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('userAvatar');
+    localStorage.removeItem('userLastName');
+    localStorage.removeItem('userBio');
+    toast({
+      title: "Goodbye!",
+      description: "You've been logged out successfully",
+    });
+    navigate('/login');
   };
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +106,7 @@ const Profile = () => {
             onAvatarChange={handleAvatarChange}
             onBioChange={handleBioChange}
             onSave={handleProfileUpdate}
+            onLogout={handleLogout}
           />
         </div>
       </div>
