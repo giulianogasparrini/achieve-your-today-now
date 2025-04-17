@@ -6,20 +6,28 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ProfileContentProps {
   firstName: string;
+  lastName: string;
+  email: string;
+  bio: string;
   avatarUrl: string;
   onFirstNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onLastNameChange: (name: any) => void;
   onAvatarChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onLogout: () => void;
+  onBioChange: (bio: any) => void;
+  onSave: (data: any) => void;
 }
 
 const ProfileContent = ({
   firstName,
+  lastName,
+  email,
+  bio,
   avatarUrl,
   onFirstNameChange,
+  onLastNameChange,
   onAvatarChange,
-  onSubmit,
-  onLogout,
+  onBioChange,
+  onSave,
 }: ProfileContentProps) => {
   return (
     <ScrollArea className="h-full pr-2">
@@ -30,9 +38,13 @@ const ProfileContent = ({
         />
         <ProfileForm
           firstName={firstName}
+          lastName={lastName}
+          email={email}
+          bio={bio}
           onFirstNameChange={onFirstNameChange}
-          onSubmit={onSubmit}
-          onLogout={onLogout}
+          onLastNameChange={onLastNameChange}
+          onBioChange={onBioChange}
+          onSubmit={onSave}
         />
       </div>
     </ScrollArea>

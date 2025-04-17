@@ -30,26 +30,33 @@ const Profile = () => {
     console.log("Profile updated:", data);
   };
 
+  const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("First name changed:", e.target.value);
+  };
+
+  const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("Last name changed:", e.target.value);
+  };
+
+  const handleBioChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    console.log("Bio changed:", e.target.value);
+  };
+
   return (
     <MainLayout>
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">Your Profile</h1>
         <div className="grid gap-4">
-          <ProfileAvatar 
-            avatarUrl={userData.avatarUrl} 
-            onAvatarChange={handleAvatarChange} 
-          />
-          
           <ProfileContent
             firstName={userData.firstName}
             lastName={userData.lastName}
             email={userData.email}
             bio={userData.bio}
             avatarUrl={userData.avatarUrl}
-            onFirstNameChange={(name) => console.log("First name changed:", name)}
-            onLastNameChange={(name) => console.log("Last name changed:", name)}
+            onFirstNameChange={handleFirstNameChange}
+            onLastNameChange={handleLastNameChange}
             onAvatarChange={handleAvatarChange}
-            onBioChange={(bio) => console.log("Bio changed:", bio)}
+            onBioChange={handleBioChange}
             onSave={handleProfileUpdate}
           />
         </div>
