@@ -1,22 +1,24 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar } from 'lucide-react';
-
-const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+import HabitHistoryModal from './HabitHistoryModal';
 
 interface HabitStreakProps {
   name?: string;
   streak?: number;
   lastWeek?: boolean[];
   onToggleToday?: () => void;
+  completedDates?: Date[];
 }
 
 const HabitStreakDisplay = ({ 
   name = "New Habit", 
   streak = 0, 
   lastWeek = [false, false, false, false, false, false, false], 
-  onToggleToday 
+  onToggleToday,
+  completedDates = []
 }: HabitStreakProps) => {
+  const [showHistory, setShowHistory] = useState(false);
+
   // Get today's index (0-6, Monday-Sunday)
   const today = new Date().getDay();
   const adjustedToday = today === 0 ? 6 : today - 1; // Convert to 0 = Monday, 6 = Sunday
@@ -70,11 +72,21 @@ const HabitStreakDisplay = ({
           {lastWeek[adjustedToday] ? 'Mark Incomplete' : 'Mark Complete'}
         </button>
         
-        <button className="text-xs flex items-center text-muted-foreground hover:text-foreground">
+        <button 
+          className="text-xs flex items-center text-muted-foreground hover:text-foreground"
+          onClick={() => setShowHistory(true)}
+        >
           <Calendar size={14} className="mr-1" />
           <span>View history</span>
         </button>
       </div>
+
+      <HabitHistoryModal
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        habitName={name}
+        selectedDates={completedDates}
+      />
     </div>
   );
 };

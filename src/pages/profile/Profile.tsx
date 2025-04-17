@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import ProfileContent from "../../components/profile/ProfileContent";
@@ -16,21 +15,18 @@ const Profile = () => {
   const [bio, setBio] = React.useState('Fitness enthusiast and software developer');
   const [avatarUrl, setAvatarUrl] = React.useState(localStorage.getItem('userAvatar') || 'https://i.pravatar.cc/300');
 
-  // Load user data from auth service
   useEffect(() => {
     const user = getUserProfile();
     if (user) {
       setFirstName(user.firstName || '');
       setEmail(user.email || '');
       
-      // Load lastName and bio from localStorage if available
       const savedLastName = localStorage.getItem('userLastName') || '';
       const savedBio = localStorage.getItem('userBio') || 'Fitness enthusiast and software developer';
       setLastName(savedLastName);
       setBio(savedBio);
     }
     
-    // Only set avatar URL from localStorage if available
     const savedAvatarUrl = localStorage.getItem('userAvatar');
     if (savedAvatarUrl) {
       setAvatarUrl(savedAvatarUrl);
@@ -55,8 +51,11 @@ const Profile = () => {
   };
 
   const handleProfileUpdate = (data: any) => {
-    // Save all profile data to localStorage
-    updateUserProfile({ firstName });
+    updateUserProfile({ 
+      firstName,
+      email,
+      id: localStorage.getItem('userId') || undefined
+    });
     localStorage.setItem('userLastName', lastName);
     localStorage.setItem('userBio', bio);
     

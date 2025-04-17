@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import HabitStreakDisplay from "../../components/habits/HabitStreakDisplay";
@@ -8,14 +7,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
-// Define the Habit interface
 interface Habit {
   id: string;
   name: string;
   streak: number;
   lastWeek: boolean[];
   category?: string;
+  completedDates: Date[];
 }
 
 const Habits = () => {
@@ -25,21 +25,44 @@ const Habits = () => {
       name: 'Morning Meditation',
       streak: 12,
       lastWeek: [true, true, true, true, true, false, true],
-      category: 'Wellness'
+      category: 'Wellness',
+      completedDates: [
+        new Date(2025, 3, 1),
+        new Date(2025, 3, 2),
+        new Date(2025, 3, 3),
+        new Date(2025, 3, 4),
+        new Date(2025, 3, 5),
+        new Date(2025, 3, 7),
+      ]
     },
     {
       id: '2',
       name: 'Daily Exercise',
       streak: 5,
       lastWeek: [false, true, true, true, true, false, true],
-      category: 'Fitness'
+      category: 'Fitness',
+      completedDates: [
+        new Date(2025, 3, 2),
+        new Date(2025, 3, 3),
+        new Date(2025, 3, 4),
+        new Date(2025, 3, 5),
+        new Date(2025, 3, 7),
+      ]
     },
     {
       id: '3',
       name: 'Read 30 Minutes',
       streak: 8,
       lastWeek: [true, true, false, true, true, true, true],
-      category: 'Learning'
+      category: 'Learning',
+      completedDates: [
+        new Date(2025, 3, 1),
+        new Date(2025, 3, 2),
+        new Date(2025, 3, 4),
+        new Date(2025, 3, 5),
+        new Date(2025, 3, 6),
+        new Date(2025, 3, 7),
+      ]
     }
   ]);
 
@@ -53,22 +76,28 @@ const Habits = () => {
   const categories = ['Wellness', 'Fitness', 'Learning', 'Productivity', 'Self-care'];
 
   const handleToggleHabit = (id: string) => {
-    // Get today's index (0-6, Monday-Sunday)
-    const today = new Date().getDay();
-    const adjustedToday = today === 0 ? 6 : today - 1; // Convert to 0 = Monday, 6 = Sunday
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
     setHabits(habits.map(habit => {
       if (habit.id === id) {
+        const adjustedToday = today.getDay() === 0 ? 6 : today.getDay() - 1;
         const newLastWeek = [...habit.lastWeek];
         newLastWeek[adjustedToday] = !newLastWeek[adjustedToday];
         
-        // Update streak based on the last consecutive completed days
+        let newCompletedDates = [...habit.completedDates];
+        if (newLastWeek[adjustedToday]) {
+          newCompletedDates.push(today);
+        } else {
+          newCompletedDates = newCompletedDates.filter(
+            date => date.getTime() !== today.getTime()
+          );
+        }
+        
         let newStreak = 0;
         if (newLastWeek[adjustedToday]) {
-          // If marked as done, count streak
           newStreak = habit.streak + 1;
         } else {
-          // If marked as undone, reset streak
           newStreak = 0;
           for (let i = adjustedToday - 1; i >= 0; i--) {
             if (newLastWeek[i]) newStreak++;
@@ -76,7 +105,12 @@ const Habits = () => {
           }
         }
         
-        return { ...habit, lastWeek: newLastWeek, streak: newStreak };
+        return { 
+          ...habit, 
+          lastWeek: newLastWeek, 
+          streak: newStreak,
+          completedDates: newCompletedDates 
+        };
       }
       return habit;
     }));
@@ -95,7 +129,8 @@ const Habits = () => {
       name: newHabit.name,
       streak: 0,
       lastWeek: [false, false, false, false, false, false, false],
-      category: newHabit.category
+      category: newHabit.category,
+      completedDates: []
     };
 
     setHabits([...habits, habit]);
@@ -156,17 +191,20 @@ const Habits = () => {
           </Dialog>
         </div>
         
-        <div className="grid gap-4">
-          {habits.map(habit => (
-            <HabitStreakDisplay
-              key={habit.id}
-              name={habit.name}
-              streak={habit.streak}
-              lastWeek={habit.lastWeek}
-              onToggleToday={() => handleToggleHabit(habit.id)}
-            />
-          ))}
-        </div>
+        <Tabs>
+          <TabsContent value="all" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {habits.map(habit => (
+              <HabitStreakDisplay
+                key={habit.id}
+                name={habit.name}
+                streak={habit.streak}
+                lastWeek={habit.lastWeek}
+                onToggleToday={() => handleToggleHabit(habit.id)}
+                completedDates={habit.completedDates}
+              />
+            ))}
+          </TabsContent>
+        </Tabs>
       </div>
     </MainLayout>
   );
