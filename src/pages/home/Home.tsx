@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MainLayout from "../../components/layout/MainLayout";
 import DailyOverview from "../../components/dashboard/DailyOverview";
@@ -37,6 +38,16 @@ const Home = () => {
   const handleToggleHabit = () => {
     // This would toggle the habit in a real app
     console.log("Habit toggled");
+  };
+
+  const handleJoinChallenge = (id: string) => {
+    // This would join the challenge in a real app
+    console.log("Joined challenge:", id);
+  };
+
+  const handleLeaveChallenge = (id: string) => {
+    // This would leave the challenge in a real app
+    console.log("Left challenge:", id);
   };
 
   return (
@@ -146,6 +157,8 @@ const Home = () => {
               participants={243}
               timeLeft="18 days left"
               joined={true}
+              onJoin={() => handleJoinChallenge("1")}
+              onLeave={() => handleLeaveChallenge("1")}
             />
             <ChallengeCard
               id="2"
@@ -154,6 +167,8 @@ const Home = () => {
               participants={156}
               timeLeft="26 days left"
               joined={false}
+              onJoin={() => handleJoinChallenge("2")}
+              onLeave={() => handleLeaveChallenge("2")}
             />
           </div>
         </div>

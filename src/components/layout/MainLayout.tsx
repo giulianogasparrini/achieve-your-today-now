@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Target, Calendar, Award, Users, BookOpen, UserCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -53,6 +53,16 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  useEffect(() => {
+    // Initialize scroll indicators on component mount
+    handleScroll();
+    // Add resize event listener to update arrows on window resize
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
+
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ left: -200, behavior: 'smooth' });
@@ -66,12 +76,12 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 pb-16">
+    <div className="min-h-screen flex flex-col bg-background">
+      <main className="flex-1 pb-16 max-w-6xl mx-auto w-full">
         {children}
       </main>
       <nav className="fixed bottom-0 left-0 right-0 bg-background border-t flex flex-col p-1 z-50 shadow-sm">
-        <div className="relative">
+        <div className="relative max-w-6xl mx-auto w-full">
           {isMobile && showLeftArrow && (
             <button 
               onClick={scrollLeft}
